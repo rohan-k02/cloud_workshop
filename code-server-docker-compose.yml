@@ -1,0 +1,41 @@
+---
+version: "3.4"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  code_server_data:
+    name: code_server_data
+
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    restart: unless-stopped
+
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      # - PASSWORD=password #optional
+      # - HASHED_PASSWORD=$$argon2i$$v=19$$m=4096,t=3,p=1$$R000UThTSmNkeDd2OTVLNQ$$saltedpasshash #optional
+      - SUDO_PASSWORD=ZsudoZ556Z #optional
+      # - SUDO_PASSWORD_HASH= #optional
+      - PROXY_DOMAIN=code-rohan.mywire.org 
+      - DEFAULT_WORKSPACE=/config/workspace #optional
+      - CS_DISABLE_GETTING_STARTED_OVERRIDE=true
+      - CS_DISABLE_TELEMERTY=1
+
+    volumes:
+      - code_server_data:/config
+
+    # ports:
+    #   - 8556:8443
+    
+    networks:
+      - proxy
+
+
+

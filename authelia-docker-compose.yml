@@ -1,0 +1,37 @@
+version: '3.3'
+
+networks:
+  proxy:
+    external: true
+
+services:
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+#   image: authelia/authelia:4.31
+    volumes:
+      - ./config:/config
+    ports:
+      - 9091:9091
+    restart: unless-stopped
+    healthcheck:
+      disable: true
+    environment:
+      - TZ=Asia/Kolkata
+    depends_on:
+      - redis
+    networks:
+      - proxy
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    volumes:
+      - ./redis:/data
+    expose:
+      - 6379
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Kolkata
+    networks:
+      - proxy

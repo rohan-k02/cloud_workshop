@@ -1,0 +1,27 @@
+---
+version: "3.4"
+
+networks:
+  proxy:
+    name: proxy
+
+
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    container_name: nginx
+    
+    ports:
+     - '80:80' # Public HTTP Port
+     - '443:443' # Public HTTPS Port
+     - '81:81' # Admin Web Port
+
+    volumes:
+      - ./data:/data
+      - ./data/nginxx/snippets:/snippets:ro
+      - ./data/nginx/site-confs:/site-confs:ro
+      - ./letsencrypt:/etc/letsencrypt
+    
+    networks:
+      - proxy
