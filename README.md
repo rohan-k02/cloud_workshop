@@ -6,13 +6,16 @@
 
 - [Cloud Hosting Workshop](#cloud-hosting-workshop)
   - [Table of Contents](#table-of-contents)
-  - [1. Obtain a custom domain](#1-obtain-a-custom-domain)
+  - [1. Set up your VM on Azure](#1-set-up-your-vm-on-azure)
+    - [a. Sign up for Azure Student](#a-sign-up-for-azure-student)
+    - [b. Create a new VM](#b-create-a-new-vm)
+    - [c. Connect to the VM via SSH](#c-connect-to-the-vm-via-ssh)
+    - [d. Enable port 81 on the network](#d-enable-port-81-on-the-network)
   - [2. Set up your VM on GCP](#2-set-up-your-vm-on-gcp)
     - [a. Enable the free tier](#a-enable-the-free-tier)
     - [b. Create a free VM instance](#b-create-a-free-vm-instance)
     - [c. Allow port 81 through the firewall](#c-allow-port-81-through-the-firewall)
-  - [2. Set up your VM on Azure](#2-set-up-your-vm-on-azure)
-    - [c. Set up dynamic dns](#c-set-up-dynamic-dns)
+  - [2. Obtain a custom domain](#2-obtain-a-custom-domain)
   - [3. Install Docker on the VM](#3-install-docker-on-the-vm)
   - [4. Install nginx](#4-install-nginx)
     - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
@@ -34,24 +37,77 @@
     - [Youtube](#youtube)
     - [Github lists](#github-lists)
 
-## 1. Obtain a custom domain
+## 1. Set up your VM on Azure
 
-Until now, we have been using a lengthy IP Address to access our admin page. However, so that our page resembles more like an actual site, we will use a domain name. Domain names usually start at around 500 Rupees per year. If you want your own domain name, you can definitely purchase one. The free option is to use subdomains and that’s exactly what we’re going to do today.
+### a. Sign up for Azure Student
 
-- Visit [https://dynu.com](https://dynu.com) and make a free account.
-- Once you have successfully verified your account, visit [https://www.dynu.com/en-US/ControlPanel/AddDDNS](https://www.dynu.com/en-US/ControlPanel/AddDDNS) to create your subdomain.
+- Visit this link: [https://azure.microsoft.com/en-in/free/students](https://azure.microsoft.com/en-in/free/students) and login with your **learner ID**.
 
-![Dynu 1](./imgs/img12.png)
+Sign up for Azure Student using only **this link** to ensure that your student offer gets activated.
 
-- Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
+### b. Create a new VM
 
-![Dynu 2](./imgs/img13.png)
+- Visit [https://portal.azure.com](https://portal.azure.com)
+- Click on 'Create a resource'.
+![Azure 1](./imgs/img20.png)
+- Select 'create' under virtual machine.
+![Azure 2](./imgs/img21.png)
 
-- Click on API Credentials (the puzzle icon) and Generate an API Key.
+Only change the specified settings. Leave all the other settings to default.
 
-![Dynu 3](./imgs/img14.png)
+1. Ensure that the subscription is 'Azure for Students'.
+  ![Azure 3](./imgs/img22.png)
+2. Select an appropriate name for the VM.
+  ![Azure 4](./imgs/img23.png)
+3. Ensure that Ubuntu Server 20.04 is selected as the Image
+  ![Azure 5](./imgs/img24.png)
+4. **Important:** Under Size, click 'See all sizes' and select 'B1s (free services eligible)'.
+  ![Azure 6](./imgs/img25.png)
+5. Under Inbound Port Rules, select SSH, HTTP and HTTPS.
+  ![Azure 7](./imgs/img26.png)
+6. Go to the Disks tab and select Standard SSD instead of Premium SSD in the OS Disk type.
+  ![Azure 8](./imgs/img27.png)
 
-- Copy the API key somewhere safe as we will use it later.
+- Click 'Review + Create' to finish creating the SSD.
+- Once Validated, click 'Create'
+- Make sure to download the SSH key to your Downloads folder.
+  ![Azure 9](./imgs/img28.png)
+- Once the resource is created, click 'Go to Resource'
+
+### c. Connect to the VM via SSH
+
+- Open Terminal on your PC
+- Navigate to the Downloads folder by typing
+
+```bash
+cd Downloads
+```
+
+- Type `ssh` to check if ssh is installed. The command should output correctly if it is installed.
+- Copy the Public IP of the VM and note it somewhere.
+- type the following command into the terminal. **CHANGE SOME THINGS BEFORE ENTERING**
+
+```bash
+ssh -i vmname_key.pem azureuser@IP
+```
+
+Change the 'vmname' to the vmname you entered. This is the name of the key you downloaded.
+
+Change the 'IP' to the external IP you copied.
+
+Example:
+
+```bash
+ssh -i mitws_key.pem azureuser@4.240.104.16
+```
+
+- Type 'yes' if 'The authenticity of host' message appears.
+![SSH 1](./imgs/img29.png)
+
+### d. Enable port 81 on the network
+
+- In the Azure Portal Sidebar, Choose Network Settings
+![SSH 2](./imgs/img30.png) 
 
 ## 2. Set up your VM on GCP
 
@@ -116,83 +172,24 @@ Follow these steps exactly to create a VM that qualifies for the free tier. You 
 
 If you successfully set up your GCP VM, you can skip the Azure step.
 
-## 2. Set up your VM on Azure
+## 2. Obtain a custom domain
 
-```plain
-1 activate github student (can take b.w 1 day to week)
-https://education.github.com/pack/offers
-https://aka.ms/azure4students
+Until now, we have been using a lengthy IP Address to access our admin page. However, so that our page resembles more like an actual site, we will use a domain name. Domain names usually start at around 500 Rupees per year. If you want your own domain name, you can definitely purchase one. The free option is to use subdomains and that’s exactly what we’re going to do today.
 
-2 create a vm in azure
-size: Standard_B1s
-make sure to create a new ssh keypair
-in linux save it in ~/.ssh idk about windows
+- Visit [https://dynu.com](https://dynu.com) and make a free account.
+- Once you have successfully verified your account, visit [https://www.dynu.com/en-US/ControlPanel/AddDDNS](https://www.dynu.com/en-US/ControlPanel/AddDDNS) to create your subdomain.
 
-3 ssh into vm
+![Dynu 1](./imgs/img12.png)
 
-----
+- Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
 
-it's way faster with azure cli but due to the keypair setup might have to use cli
-keypair creation with cli https://learn.microsoft.com/en-us/cli/azure/sshkey?view=azure-cli-latest
-^haven't tried ever
+![Dynu 2](./imgs/img13.png)
 
-az group create -l centralindia -n resourceGroup1
+- Click on API Credentials (the puzzle icon) and Generate an API Key.
 
-az vm create \
---resource-group resourceGroup1\
---name cryptoniteWorkshop \
---admin-username azureuser \
---size Standard_B1s \
---os-disk-size-gb 30 \
---storage-sku StandardSSD_LRS \
---image Debian11 \
--o yamlc
+![Dynu 3](./imgs/img14.png)
 
-enable port ingress for port 81
-```
-
-### c. Set up dynamic dns
-
-- Install ddclient: Ensure ddclient is installed on your Linux machine. You can install it using your distribution's package manager. For example, on Ubuntu or Debian:
-
-```bash
-sudo apt update
-sudo apt install ddclient
-```
-
-- Configure ddclient: Open or create the configuration file /etc/ddclient.conf with a text editor. Make sure it has appropriate permissions (readable only by root, for security reasons)
-
-```bash
-sudo nano /etc/ddclient.conf
-
-```
-
-- Update Configuration: Replace myusername with your Dynu username and YOURPASSWORD with your API key. Ensure you have your Dynu domain(s) listed correctly.
-
-```config
-# ddclient configuration for Dynu
-#
-# /etc/ddclient.conf
-daemon=60                                                # Check every 60 seconds.
-syslog=yes                                               # Log update msgs to syslog.
-mail=root                                                # Mail all msgs to root.
-mail-failure=root                                        # Mail failed update msgs to root.
-pid=/var/run/ddclient.pid                                # Record PID in file.                                      
-use=web, web=checkip.dynu.com/, web-skip='IP Address'    # Get ip from server.
-server=api.dynu.com                                      # IP update server.
-protocol=dyndns2                        
-login=myusername                                         # Your username.
-password=YOURPASSWORD                                    # Password or MD5/SHA256 of password.
-MYDOMAIN.DYNU.COM                                        #CHANGE to your domain
-```
-
-- Save the Configuration File.
-
-- Start ddclient Service: You might need to start or restart the ddclient service for the changes to take effect:
-
-```bash
-sudo service ddclient restart
-```
+- Copy the API key somewhere safe as we will use it later.
 
 ## 3. Install Docker on the VM
 
