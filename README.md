@@ -107,7 +107,14 @@ ssh -i mitws_key.pem azureuser@4.240.104.16
 ### d. Enable port 81 on the network
 
 - In the Azure Portal Sidebar, Choose Network Settings
-![SSH 2](./imgs/img30.png) 
+  ![SSH 2](./imgs/img30.png)
+- In rules, Create Port rule and select Inbound Port rule
+  ![SSH 3](./imgs/img31.png)
+- Do not change any other settings, just change Destination Port range to 81
+  ![SSH 4](./imgs/img32.png)
+- Go back to the Overview.
+
+If you have finished this step, Skip the GCP section.
 
 ## 2. Set up your VM on GCP
 
