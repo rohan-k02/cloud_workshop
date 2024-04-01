@@ -21,17 +21,16 @@
     - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
     - [b. Set up nginx](#b-set-up-nginx)
   - [5. Set up certificates and domains on nginx](#5-set-up-certificates-and-domains-on-nginx)
-    - [a. Obtain a certificate](#a-obtain-a-certificate)
-    - [b. Create a domain and link it to the admin panel](#b-create-a-domain-and-link-it-to-the-admin-panel)
-  - [6. Install authelia](#6-install-authelia)
+    - [a. Create a domain and link it to the admin panel](#a-create-a-domain-and-link-it-to-the-admin-panel)
+    - [b. Obtain a certificate](#b-obtain-a-certificate)
+  - [6. Install code-server](#6-install-code-server)
+    - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
+    - [b. Create domain on nginx](#b-create-domain-on-nginx)
+  - [7. Install authelia](#7-install-authelia)
     - [a. Docker Compose](#a-docker-compose)
     - [b. Create the config file](#b-create-the-config-file)
     - [c. Create users database file](#c-create-users-database-file)
     - [d. Create the authelia container](#d-create-the-authelia-container)
-  - [7. Set up authelia on nginx](#7-set-up-authelia-on-nginx)
-  - [8. Install code-server](#8-install-code-server)
-    - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
-    - [b. Create domain on nginx](#b-create-domain-on-nginx)
   - [Resources](#resources)
     - [Reddit](#reddit)
     - [Youtube](#youtube)
@@ -114,7 +113,7 @@ ssh -i mitws_key.pem azureuser@4.240.104.16
   ![SSH 4](./imgs/img32.png)
 - Go back to the Overview.
 
-If you have finished this step, Skip the GCP section.
+If you successfully set up your Azure VM, you can skip the GCP step.
 
 ## 2. Set up your VM on GCP
 
@@ -188,7 +187,8 @@ Until now, we have been using a lengthy IP Address to access our admin page. How
 
 ![Dynu 1](./imgs/img12.png)
 
-- Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
+- Once you have created the subdomain of your choice, type the domain in a notepad as you will use it often.
+- Point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
 
 ![Dynu 2](./imgs/img13.png)
 
@@ -327,7 +327,21 @@ Password: changeme
 
 ## 5. Set up certificates and domains on nginx
 
-### a. Obtain a certificate
+### a. Create a domain and link it to the admin panel
+
+- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
+- Add a new proxy host. Under domain names, add nginx. followed by your subdomain.
+
+Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `nginx.rkcloud.mywire.org`.
+
+- Leave the scheme as http.
+- type `nginx` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
+- Use `81` as the Forward Port.
+- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
+
+![NGINX 1](./imgs/img16.png)
+
+### b. Obtain a certificate
 
 - Visit the admin panel of nginx again.
 - Navigate to the SSL Certificates page.
@@ -350,20 +364,6 @@ Example: `dns_dynu_auth_token = b43as45bg633f64U5234Wf5g4d33c57`
 - This process may take a few minutes, so do not refresh the page until it is complete.
 - If it isn’t generated successfully (the expiry date is red), delete it and try again.
 
-### b. Create a domain and link it to the admin panel
-
-- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
-- Add a new proxy host. Under domain names, add nginx. followed by your subdomain.
-
-Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `nginx.rkcloud.mywire.org`.
-
-- Leave the scheme as http.
-- type `nginx` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
-- Use `81` as the Forward Port.
-- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
-
-![NGINX 1](./imgs/img16.png)
-
 - In the SSL tab, select the certificate you created to enable HTTPS support.
 - Enable all the other options.
 
@@ -372,7 +372,96 @@ Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `n
 - Click save to create the domain.
 - Click on the new domain to test it. It should load and be protected by HTTPS.
 
-## 6. Install authelia
+## 6. Install code-server
+
+### a. Docker Compose for code-server
+
+- Navigate to the home directory on the server and create a folder called code-server
+
+```bash
+cd ~
+mkdir code-server
+cd code-server
+```
+
+- In the folder, make a new file called docker-compose.yml with the nano text editor.
+
+```bash
+nano docker-compose.yml
+```
+
+- Copy this code
+
+```yaml
+---
+version: "3.4"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  code_server_data:
+    name: code_server_data
+
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    restart: unless-stopped
+
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      # - PASSWORD=password #optional
+      # - HASHED_PASSWORD=$$argon2i$$v=19$$m=4096,t=3,p=1$$R000UThTSmNkeDd2OTVLNQ$$saltedpasshash #optional
+      - SUDO_PASSWORD=ZsudoZ556Z #optional
+      # - SUDO_PASSWORD_HASH= #optional
+      - PROXY_DOMAIN=code.rkcloud.mywire.org #CHANGE!!
+      - DEFAULT_WORKSPACE=/config/workspace #optional
+      - CS_DISABLE_GETTING_STARTED_OVERRIDE=false
+      - CS_DISABLE_TELEMERTY=1
+
+    volumes:
+      - code_server_data:/config
+
+    # ports:
+    #   - 8556:8443
+    
+    networks:
+      - proxy
+```
+
+- Make sure to change the proxy domain to your subdomain.
+  
+  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
+- Paste this into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
+- Within the ~/code-server directory, you can now run the docker-compose install.
+
+```bash
+cd ~/code-server
+docker compose up -d
+```
+
+### b. Create domain on nginx
+
+- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
+- Add a new proxy host. Under domain names, add code. followed by your subdomain.
+
+    Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
+
+- Leave the scheme as http.
+- type `code-server` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
+- Use `8443` as the Forward Port.
+- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
+
+![code-server 1](./imgs/img19.png)
+
+- In the SSL tab, select the certificate you created to enable HTTPS support.
+- Enable all the other options.
+
+## 7. Install authelia
 
 Before we install the code-server, we need to provide some authentication mechanism before we expose it to the internet. Authelia is a SSO (Single Sign On) tool that allows us to put out code-server behind a login.
 
@@ -617,156 +706,7 @@ cd ~/authelia
 docker compose up -d
 ```
 
-## 7. Set up authelia on nginx
 
-Now that we have started authelia, we need to create its domain name on nginx so we can access it from the browser.
-
-- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
-- Add a new proxy host. Under domain names, add auth. followed by your subdomain.
-
-  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `auth.rkcloud.mywire.org`.
-
-- Leave the scheme as http.
-- type `authelia` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
-- Use `9091` as the Forward Port.
-- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
-
-![Authelia 1](./imgs/img18.png)
-
-- In the SSL tab, select the certificate you created to enable HTTPS support.
-- Enable all the other options.
-
-- In the advanced tab, paste the following code. This allows authelia to recieve information about the user like IP, etc. It also enables Authelia to act as an authenticator.
-
-```perl
-location / {
-set $upstream_authelia http://authelia:9091; # This example assumes a Docker deployment 
-proxy_pass $upstream_authelia;
-client_body_buffer_size 128k;
-
-#Timeout if the real server is dead
-proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
-
-# Advanced Proxy Config
-send_timeout 5m;
-proxy_read_timeout 360;
-proxy_send_timeout 360;
-proxy_connect_timeout 360;
-
-# Basic Proxy Config
-proxy_set_header Host $host;
-proxy_set_header X-Real-IP $remote_addr;
-proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-proxy_set_header X-Forwarded-Proto $scheme;
-proxy_set_header X-Forwarded-Host $http_host;
-proxy_set_header X-Forwarded-Uri $request_uri;
-proxy_set_header X-Forwarded-Ssl on;
-proxy_redirect  http://  $scheme://;
-proxy_http_version 1.1;
-proxy_set_header Connection "";
-proxy_cache_bypass $cookie_session;
-proxy_no_cache $cookie_session;
-proxy_buffers 64 256k;
-
-# If behind a reverse proxy, forwards the correct IP, assumes you're using Cloudflare. Adjust IP for your Docker network.
-set_real_ip_from 172.18.0.0/16;
-real_ip_header X-Forwarded-For;
-real_ip_recursive on;
-}
-```
-
-Do not edit anything that is not mentioned below unless you know exactly what you are doing
-
-- Visit the domain for authelia, and test your username and password.
-
-## 8. Install code-server
-
-### a. Docker Compose for code-server
-
-- Navigate to the home directory on the server and create a folder called code-server
-
-```bash
-cd ~
-mkdir code-server
-cd code-server
-```
-
-- In the folder, make a new file called docker-compose.yml with the nano text editor.
-
-```bash
-nano docker-compose.yml
-```
-
-- Copy this code
-
-```yaml
----
-version: "3.4"
-
-networks:
-  proxy:
-    external: true
-
-volumes:
-  code_server_data:
-    name: code_server_data
-
-services:
-  code-server:
-    image: lscr.io/linuxserver/code-server:latest
-    container_name: code-server
-    restart: unless-stopped
-
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Kolkata
-      # - PASSWORD=password #optional
-      # - HASHED_PASSWORD=$$argon2i$$v=19$$m=4096,t=3,p=1$$R000UThTSmNkeDd2OTVLNQ$$saltedpasshash #optional
-      - SUDO_PASSWORD=ZsudoZ556Z #optional
-      # - SUDO_PASSWORD_HASH= #optional
-      - PROXY_DOMAIN=code.rkcloud.mywire.org #CHANGE!!
-      - DEFAULT_WORKSPACE=/config/workspace #optional
-      - CS_DISABLE_GETTING_STARTED_OVERRIDE=false
-      - CS_DISABLE_TELEMERTY=1
-
-    volumes:
-      - code_server_data:/config
-
-    # ports:
-    #   - 8556:8443
-    
-    networks:
-      - proxy
-```
-
-- Make sure to change the proxy domain to your subdomain.
-  
-  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
-- Paste this into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
-- Within the ~/code-server directory, you can now run the docker-compose install.
-
-```bash
-cd ~/code-server
-docker compose up -d
-```
-
-### b. Create domain on nginx
-
-- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
-- Add a new proxy host. Under domain names, add code. followed by your subdomain.
-
-    Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
-
-- Leave the scheme as http.
-- type `code-server` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
-- Use `8443` as the Forward Port.
-- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
-
-![code-server 1](./imgs/img19.png)
-
-- In the SSL tab, select the certificate you created to enable HTTPS support.
-- Enable all the other options.
 
 - Paste the following code in a notepad or a text editor. You will have to make some changes so be careful.
 
