@@ -4,29 +4,56 @@
 
 ## Table of Contents
 
-- [1. Set up your VM on GCP](#1-set-up-your-vm-on-gcp)
-  - [a. Enable the free tier](#a-enable-the-free-tier)
-  - [b. Create a free VM instance](#b-create-a-free-vm-instance)
-- [2. Install Docker on the VM](#2-install-docker-on-the-vm)
-- [3. Install nginx](#3-install-nginx)
-  - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
-  - [b. Allow port 81 through the firewall](#b-allow-port-81-through-the-firewall)
-  - [c. Set up nginx](#c-set-up-nginx)
-- [4. Obtain a custom domain](#4-obtain-a-custom-domain)
-- [5. Set up certificates and domains on nginx](#5-set-up-certificates-and-domains-on-nginx)
-  - [a. Obtain a certificate](#a-obtain-a-certificate)
-  - [b. Create a domain and link it to the admin panel](#b-create-a-domain-and-link-it-to-the-admin-panel)
-- [6. Install authelia](#6-install-authelia)
-  - [a. Docker Compose](#a-docker-compose)
-  - [b. Create the config file](#b-create-the-config-file)
-  - [c. Create users database file](#c-create-users-database-file)
-  - [d. Create the authelia container](#d-create-the-authelia-container)
-- [7. Set up authelia on nginx](#7-set-up-authelia-on-nginx)
-- [8. Install code-server](#8-install-code-server)
-  - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
-  - [b. Create domain on nginx](#b-create-domain-on-nginx)
+- [Cloud Hosting Workshop](#cloud-hosting-workshop)
+  - [Table of Contents](#table-of-contents)
+  - [1. Obtain a custom domain](#1-obtain-a-custom-domain)
+  - [2. Set up your VM on GCP](#2-set-up-your-vm-on-gcp)
+    - [a. Enable the free tier](#a-enable-the-free-tier)
+    - [b. Create a free VM instance](#b-create-a-free-vm-instance)
+    - [c. Allow port 81 through the firewall](#c-allow-port-81-through-the-firewall)
+  - [2. Set up your VM on Azure](#2-set-up-your-vm-on-azure)
+    - [c. Set up dynamic dns](#c-set-up-dynamic-dns)
+  - [3. Install Docker on the VM](#3-install-docker-on-the-vm)
+  - [4. Install nginx](#4-install-nginx)
+    - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
+    - [b. Set up nginx](#b-set-up-nginx)
+  - [5. Set up certificates and domains on nginx](#5-set-up-certificates-and-domains-on-nginx)
+    - [a. Obtain a certificate](#a-obtain-a-certificate)
+    - [b. Create a domain and link it to the admin panel](#b-create-a-domain-and-link-it-to-the-admin-panel)
+  - [6. Install authelia](#6-install-authelia)
+    - [a. Docker Compose](#a-docker-compose)
+    - [b. Create the config file](#b-create-the-config-file)
+    - [c. Create users database file](#c-create-users-database-file)
+    - [d. Create the authelia container](#d-create-the-authelia-container)
+  - [7. Set up authelia on nginx](#7-set-up-authelia-on-nginx)
+  - [8. Install code-server](#8-install-code-server)
+    - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
+    - [b. Create domain on nginx](#b-create-domain-on-nginx)
+  - [Resources](#resources)
+    - [Reddit](#reddit)
+    - [Youtube](#youtube)
+    - [Github lists](#github-lists)
 
-## 1. Set up your VM on GCP
+## 1. Obtain a custom domain
+
+Until now, we have been using a lengthy IP Address to access our admin page. However, so that our page resembles more like an actual site, we will use a domain name. Domain names usually start at around 500 Rupees per year. If you want your own domain name, you can definitely purchase one. The free option is to use subdomains and that’s exactly what we’re going to do today.
+
+- Visit [https://dynu.com](https://dynu.com) and make a free account.
+- Once you have successfully verified your account, visit [https://www.dynu.com/en-US/ControlPanel/AddDDNS](https://www.dynu.com/en-US/ControlPanel/AddDDNS) to create your subdomain.
+
+![Dynu 1](./imgs/img12.png)
+
+- Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
+
+![Dynu 2](./imgs/img13.png)
+
+- Click on API Credentials (the puzzle icon) and Generate an API Key.
+
+![Dynu 3](./imgs/img14.png)
+
+- Copy the API key somewhere safe as we will use it later.
+
+## 2. Set up your VM on GCP
 
 ### a. Enable the free tier
 
@@ -68,7 +95,106 @@ Follow these steps exactly to create a VM that qualifies for the free tier. You 
 ![Create VM 7](./imgs/img8.png)
 11. Create the VM
 
-## 2. Install Docker on the VM
+### c. Allow port 81 through the firewall
+
+- Configure your firewall to allow port 81 from the VM to be accessed.
+- Search for firewall or visit [https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list](https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list)
+- Create a new firewall rule. Make sure to select rule not policy
+
+![Firewall 1](./imgs/img9.png)
+
+- Add the target tags as ‘http-server’ and https-server’
+- Set the IPv4 range as 0.0.0.0/0. This will allow access to all IP addresses.
+
+![Firewall 2](./imgs/img10.png)
+
+- Set the UDP and TCP ports to 81
+
+![Firewall 3](./imgs/img11.png)
+
+- Create the firewall rule
+
+If you successfully set up your GCP VM, you can skip the Azure step.
+
+## 2. Set up your VM on Azure
+
+```plain
+1 activate github student (can take b.w 1 day to week)
+https://education.github.com/pack/offers
+https://aka.ms/azure4students
+
+2 create a vm in azure
+size: Standard_B1s
+make sure to create a new ssh keypair
+in linux save it in ~/.ssh idk about windows
+
+3 ssh into vm
+
+----
+
+it's way faster with azure cli but due to the keypair setup might have to use cli
+keypair creation with cli https://learn.microsoft.com/en-us/cli/azure/sshkey?view=azure-cli-latest
+^haven't tried ever
+
+az group create -l centralindia -n resourceGroup1
+
+az vm create \
+--resource-group resourceGroup1\
+--name cryptoniteWorkshop \
+--admin-username azureuser \
+--size Standard_B1s \
+--os-disk-size-gb 30 \
+--storage-sku StandardSSD_LRS \
+--image Debian11 \
+-o yamlc
+
+enable port ingress for port 81
+```
+
+### c. Set up dynamic dns
+
+- Install ddclient: Ensure ddclient is installed on your Linux machine. You can install it using your distribution's package manager. For example, on Ubuntu or Debian:
+
+```bash
+sudo apt update
+sudo apt install ddclient
+```
+
+- Configure ddclient: Open or create the configuration file /etc/ddclient.conf with a text editor. Make sure it has appropriate permissions (readable only by root, for security reasons)
+
+```bash
+sudo nano /etc/ddclient.conf
+
+```
+
+- Update Configuration: Replace myusername with your Dynu username and YOURPASSWORD with your API key. Ensure you have your Dynu domain(s) listed correctly.
+
+```config
+# ddclient configuration for Dynu
+#
+# /etc/ddclient.conf
+daemon=60                                                # Check every 60 seconds.
+syslog=yes                                               # Log update msgs to syslog.
+mail=root                                                # Mail all msgs to root.
+mail-failure=root                                        # Mail failed update msgs to root.
+pid=/var/run/ddclient.pid                                # Record PID in file.                                      
+use=web, web=checkip.dynu.com/, web-skip='IP Address'    # Get ip from server.
+server=api.dynu.com                                      # IP update server.
+protocol=dyndns2                        
+login=myusername                                         # Your username.
+password=YOURPASSWORD                                    # Password or MD5/SHA256 of password.
+MYDOMAIN.DYNU.COM                                        #CHANGE to your domain
+```
+
+- Save the Configuration File.
+
+- Start ddclient Service: You might need to start or restart the ddclient service for the changes to take effect:
+
+```bash
+sudo service ddclient restart
+```
+
+## 3. Install Docker on the VM
 
 - View all your VMs by visiting [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances) or by searching ‘VM instances’ in the search bar
 - Click SSH under the Connect column.
@@ -118,7 +244,7 @@ newgrp docker
 docker run hello-world
 ```
 
-## 3. Install nginx
+## 4. Install nginx
 
 ### a. Use docker compose to spin up the container
 
@@ -179,26 +305,7 @@ services:
 docker compose up -d
 ```
 
-### b. Allow port 81 through the firewall
-
-- Configure your firewall to allow port 81 from the VM to be accessed.
-- Search for firewall or visit [https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list](https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list)
-- Create a new firewall rule. Make sure to select rule not policy
-
-![Firewall 1](./imgs/img9.png)
-
-- Add the target tags as ‘http-server’ and https-server’
-- Set the IPv4 range as 0.0.0.0/0. This will allow access to all IP addresses.
-
-![Firewall 2](./imgs/img10.png)
-
-- Set the UDP and TCP ports to 81
-
-![Firewall 3](./imgs/img11.png)
-
-- Create the firewall rule
-
-### c. Set up nginx
+### b. Set up nginx
 
 - Note the external IP address of your VM by going to the ‘VM Instances’ page. Click on the External IP link to visit it. Add ’:81’ after the link to visit port 81. Change the URL to http instead of https.
 
@@ -212,25 +319,6 @@ Password: changeme
 ```
 
 - Change the default details, and ensure you use a strong password as security is very important.
-
-## 4. Obtain a custom domain
-
-Until now, we have been using a lengthy IP Address to access our admin page. However, so that our page resembles more like an actual site, we will use a domain name. Domain names usually start at around 500 Rupees per year. If you want your own domain name, you can definitely purchase one. The free option is to use subdomains and that’s exactly what we’re going to do today.
-
-- Visit [https://dynu.com](https://dynu.com) and make a free account.
-- Once you have successfully verified your account, visit [https://www.dynu.com/en-US/ControlPanel/AddDDNS](https://www.dynu.com/en-US/ControlPanel/AddDDNS) to create your subdomain.
-
-![Dynu 1](./imgs/img12.png)
-
-- Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
-
-![Dynu 2](./imgs/img13.png)
-
-- Click on API Credentials (the puzzle icon) and Generate an API Key.
-
-![Dynu 3](./imgs/img14.png)
-
-- Copy the API key somewhere safe as we will use it later.
 
 ## 5. Set up certificates and domains on nginx
 
@@ -763,4 +851,25 @@ real_ip_recursive on;
 
 Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
 
-**Voila! 🎉🎉**
+Voila! 🎉🎉
+
+## Resources
+
+### Reddit
+
+- [r/selfhosted](https://www.reddit.com/r/selfhosted/)
+- [selfhosted wiki - Getting Started](https://adrift.space/r-selfhosted/wiki/)
+- [r/homelab](https://www.reddit.com/r/homelab/)
+
+### Youtube
+
+- [Christian Lempa](https://www.youtube.com/@christianlempa)
+- [DBTech](https://www.youtube.com/@DBTechYT)
+- [Tech Hut](https://www.youtube.com/@TechHut)
+- [Techno Tim](https://www.youtube.com/@TechnoTim)
+
+### Github lists
+
+- [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted)
+- [Awesome sysadmin](https://github.com/awesome-foss/awesome-sysadmin)
+- [Awesome Docker](https://github.com/veggiemonk/awesome-docker)
