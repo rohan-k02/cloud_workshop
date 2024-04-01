@@ -33,20 +33,16 @@ Follow these steps exactly to create a VM that qualifies for the free tier. You 
 6. Change the boot disk size to 30 GB (only if your account has 1 VM!)
 ![Create VM 3](./imgs/img4.png)
 7. Enable HTTP and HTTPS Traffic under 'Firewall'
+![Create VM 4](./imgs/img5.png)
 8. Expand 'Advanced Options' and under 'Networking' expand the default interface.
+![Create VM 5](./imgs/img6.png)
 9. Click 'Reserve Static External IP address' in the 'External IPv4 address' option.
+![Create VM 6](./imgs/img7.png)
 10. Enter a name for the IP address and click 'DONE' to save the IP.
+![Create VM 7](./imgs/img8.png)
 11. Create the VM
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%206.png)
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%207.png)
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%208.png)
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%209.png)
-
-# 2. Install Docker on the VM
+## 2. Install Docker on the VM
 
 - View all your VMs by visiting [https://console.cloud.google.com/compute/instances](https://console.cloud.google.com/compute/instances) or by searching ‘VM instances’ in the search bar
 - Click SSH under the Connect column.
@@ -96,45 +92,9 @@ newgrp docker
 docker run hello-world
 ```
 
-# What is Docker?
+## 3. Install nginx
 
-Before we start using Docker, let's take a step back and understand the concept of containerization.
-
-Imagine you're moving to a new house. Instead of packing all your belongings into individual boxes and transporting them separately, you decide to use shipping containers. These containers can hold everything you need, from furniture to kitchen appliances, in a neat and organized manner. Plus, they're standardized, making it easier to move them around efficiently.
-
-Now, let's relate this to software development. Traditionally, when you build an application, you have to deal with various dependencies, libraries, and configurations. It's like packing your belongings into separate boxes, each representing a different component of your application. This can get messy and cumbersome, especially when you want to deploy your application across different environments.
-
-This is where containerization comes in. Just like shipping containers streamline the process of moving belongings, containers in software development encapsulate everything your application needs to run smoothly. They include the code, runtime, system tools, libraries, and settings, all bundled together in a lightweight package. And just like shipping containers, containers are standardized, making them easy to deploy and manage across different platforms.
-
-In summary, Docker containers offer a lightweight and efficient way to package and deploy applications, thanks to containerization. They provide isolation without the overhead of running multiple virtual machines, making them ideal for modern, scalable, and portable software development.
-
-**Docker Images:**
-
-Think of a Docker image as a blueprint or a snapshot of a software application and its dependencies at a specific point in time. It contains everything needed to run an application: the code, runtime, libraries, dependencies, and configuration files.
-
-Creating a Docker image is like creating a recipe for your application. You specify the ingredients (dependencies), the steps to prepare them (installation instructions), and any special instructions (configuration settings). Once you have this recipe defined in a Dockerfile, you can build it into an image using the Docker build command.
-
-Docker images are stored in a registry, like Docker Hub, where they can be shared and reused by others. This makes it easy to distribute applications and ensures consistency across different environments.
-
-**Docker Containers:**
-
-Now, let's talk about containers. A Docker container is a running instance of a Docker image. It's like a lightweight, isolated environment that encapsulates your application and its dependencies.
-
-When you run a Docker container, you're essentially launching a process or a set of processes within that isolated environment. Each container has its own filesystem, networking, and resources, but shares the same underlying kernel with the host machine.
-
-Containers are designed to be ephemeral and disposable. You can start, stop, delete, and replace them on the fly without affecting the host system or other containers. This makes containers ideal for microservices architectures, where applications are broken down into smaller, independent components that can be deployed and scaled independently.
-
-In summary, Docker images are like blueprints for your applications, while Docker containers are the running instances of those blueprints. Images define what goes into your application, while containers provide the environment for your application to run. Together, they form the foundation of modern, containerized application development and deployment.
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2010.png)
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2011.png)
-
-I’m aware it’ll take a while for all these concepts to settle in, but once you actually start using docker containers, this will seem really easy.
-
-# 3. Install nginx
-
-## a. Use docker compose to spin up the container
+### a. Use docker compose to spin up the container
 
 There are two ways to run docker containers, either by using docker run or by using docker compose.
 
@@ -187,143 +147,117 @@ services:
 
 - Paste this into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
 
-I will explain each part of the YAML file
-
 - Now, run the docker container by using docker compose:
 
 ```bash
 docker compose up -d
 ```
 
-## b. Allow port 81 through the firewall
+### b. Allow port 81 through the firewall
 
 - Configure your firewall to allow port 81 from the VM to be accessed.
 - Search for firewall or visit [https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list](https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/list)
 - Create a new firewall rule. Make sure to select rule not policy
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2012.png)
+![Firewall 1](./imgs/img9.png)
 
 - Add the target tags as ‘http-server’ and https-server’
 - Set the IPv4 range as 0.0.0.0/0. This will allow access to all IP addresses.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2013.png)
+![Firewall 2](./imgs/img10.png)
 
 - Set the UDP and TCP ports to 81
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2014.png)
+![Firewall 3](./imgs/img11.png)
 
 - Create the firewall rule
 
-## c. Set up nginx
+### c. Set up nginx
 
-- Note the external IP address of your VM by going to the ‘VM Instances’ page. Click on the External IP link to visit it. Add ’:81’ after the link to visit port 81. Make sure it is http, not https.
-- Example, if your IP is `34.168.85.73`, visit `http://34.168.85.73:81/`
+- Note the external IP address of your VM by going to the ‘VM Instances’ page. Click on the External IP link to visit it. Add ’:81’ after the link to visit port 81. Change the URL to http instead of https.
+
+  Example, if your IP is `34.168.85.73`, visit `http://34.168.85.73:81/`
+
 - Login with the following details:
 
-```
+```Plain
 Email:    admin@example.com
 Password: changeme
 ```
 
 - Change the default details, and ensure you use a strong password as security is very important.
 
-# What is a Reverse Proxy?
-
-What is NGINX and why are we installing it? Well, NGINX is a reverse proxy. A reverse proxy is a very important tool that is necessary for maintaining security and convenience while self hosting.
-
-**Proxy:**
-
-Imagine you're at a fancy restaurant, and you want to order some food from the kitchen. But instead of walking all the way to the kitchen yourself, you have a waiter who takes your order and brings the food back to your table. That's kind of like what a proxy does in the world of computers.
-
-In simple terms, a proxy is like a middleman that sits between you (your computer or device) and the internet. When you want to access a website or an online service, instead of connecting directly to it, your request goes through the proxy server first. The proxy then forwards your request to the destination, receives the response, and sends it back to you.
-
-**Reverse Proxy:**
-
-Now, let's talk about reverse proxy. Imagine you're hosting a big party at your house, and you're expecting a lot of guests. Instead of having everyone come directly to your front door, which might get crowded and chaotic, you set up a reception area outside where guests check in first. This reception area helps manage the flow of guests and directs them to the right places inside your house.
-
-In the world of servers and websites, a reverse proxy works in a similar way. It sits in front of web servers and acts as a gateway for incoming requests from clients (like web browsers). When a client wants to access a website, the request goes to the reverse proxy first. The reverse proxy then forwards the request to the appropriate server hosting the website, receives the response, and sends it back to the client.
-
-So, why use a reverse proxy? Well, it offers several benefits. It can improve security by hiding the details of your web servers and providing a single entry point for incoming traffic. It can also help with load balancing, distributing incoming requests across multiple servers to ensure smooth performance and prevent any single server from getting overwhelmed.
-
-In summary, a reverse proxy is like a receptionist for your website, helping manage incoming requests and directing them to the right place behind the scenes. It's a handy tool for improving security, scalability, and performance in the world of web hosting and server management.
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2015.png)
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2016.png)
-
-# 4. Obtain a custom domain
+## 4. Obtain a custom domain
 
 Until now, we have been using a lengthy IP Address to access our admin page. However, so that our page resembles more like an actual site, we will use a domain name. Domain names usually start at around 500 Rupees per year. If you want your own domain name, you can definitely purchase one. The free option is to use subdomains and that’s exactly what we’re going to do today.
 
 - Visit [https://dynu.com](https://dynu.com) and make a free account.
 - Once you have successfully verified your account, visit [https://www.dynu.com/en-US/ControlPanel/AddDDNS](https://www.dynu.com/en-US/ControlPanel/AddDDNS) to create your subdomain.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2017.png)
+![Dynu 1](./imgs/img12.png)
 
 - Once you have created the subdomain of your choice, point it to the external IP of your VM. Paste the External IP of your VM in the IPv4 Address field and save it.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2018.png)
+![Dynu 2](./imgs/img13.png)
 
 - Click on API Credentials (the puzzle icon) and Generate an API Key.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2019.png)
+![Dynu 3](./imgs/img14.png)
 
 - Copy the API key somewhere safe as we will use it later.
 
-# What is SSL?
+## 5. Set up certificates and domains on nginx
 
-Remember how I told you to visit HTTP instead of HTTPS when we were opening the admin panel? The browser shows a warning: ‘Not Secure’. This is due to the fact that HTTP is not secure at all, any traffic you send through it is unencrypted. Anybody spying over your network can easily see the data you’re sending.
-
-To use HTTPS, we need to generate SSL Certificates.  SSL certificates are digital certificates that provide secure, encrypted communication between a web server and a user's web browser.
-
-# 5. Set up certificates and domains on nginx
-
-## a. Obtain a certificate
+### a. Obtain a certificate
 
 - Visit the admin panel of nginx again.
 - Navigate to the SSL Certificates page.
 - Click on add SSL Certificate and select ‘Let’s Encrypt’.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2020.png)
+![SSL 1](./imgs/img15.png)
 
 - Enter the custom subdomain that you created in the previous step. Also add another domain which is *. followed by the subdomain you created.
+  
 Example: `rkcloud.mywire.com` and `*.rkcloud.mywire.org`
+
 - Enable ‘Use a DNS Challenge’.
 - Select Dynu as the DNS Provider.
 - Replace YOUR_DYNU_AUTH_TOKEN with the API Credential generated earlier.
-Example: `dns_dynu_auth_token = V5Xb4345bg633f64U5234Wf5g4d33c57`
+  
+Example: `dns_dynu_auth_token = b43as45bg633f64U5234Wf5g4d33c57`
+
 - Leave the propagation seconds blank.
 - Agree to the terms and conditions.
 - This process may take a few minutes, so do not refresh the page until it is complete.
 - If it isn’t generated successfully (the expiry date is red), delete it and try again.
 
-## b. Create a domain and link it to the admin panel
+### b. Create a domain and link it to the admin panel
 
 - In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
 - Add a new proxy host. Under domain names, add nginx. followed by your subdomain.
 
-    Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `nginx.rkcloud.mywire.org`.
+Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `nginx.rkcloud.mywire.org`.
 
 - Leave the scheme as http.
 - type `nginx` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
 - Use `81` as the Forward Port.
 - Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2021.png)
+![NGINX 1](./imgs/img16.png)
 
 - In the SSL tab, select the certificate you created to enable HTTPS support.
 - Enable all the other options.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2022.png)
+![NGINX 2](./imgs/img17.png)
 
 - Click save to create the domain.
 - Click on the new domain to test it. It should load and be protected by HTTPS.
 
-# 6. Install authelia
+## 6. Install authelia
 
 Before we install the code-server, we need to provide some authentication mechanism before we expose it to the internet. Authelia is a SSO (Single Sign On) tool that allows us to put out code-server behind a login.
 
-## a. Docker Compose
+### a. Docker Compose
 
 - Navigate to the home directory on the server and create a folder called authelia
 
@@ -384,7 +318,7 @@ services:
 - Paste this into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
 - DO NOT run it with docker compose yet. We have to create the config files.
 
-## b. Create the config file
+### b. Create the config file
 
 - Create a new directory called config in the authelia folder.
 
@@ -481,25 +415,25 @@ notifier:
 #      minimum_version: TLS1.2
 ```
 
-**Line 8 (jwt_secret)** - Maybe add or change a few letters/numbers.
+- **Line 8 (jwt_secret)** - Maybe add or change a few letters/numbers.
 
-**Line 9 (default_redirection_url)** - add https://auth.your_subdomain.org to this.
+- **Line 9 (default_redirection_url)** - add https://auth.your_subdomain.org to this.
 
-Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
+  Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
 
-**Line 26 (Access Control Domain 1)** - Change this to https://auth.your_subdomain.org as well.
+- **Line 26 (Access Control Domain 1)** - Change this to https://auth.your_subdomain.org as well.
 
-Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
+  Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
 
-**Line 29 (Access Control Domain 2)** - Change this to the subdomain only.
+- **Line 29 (Access Control Domain 2)** - Change this to the subdomain only.
 
-Example: if your subdomain is `rkcloud.mywire.org`, add `https://rkcloud.mywire.org` to the field.
+  Example: if your subdomain is `rkcloud.mywire.org`, add `https://rkcloud.mywire.org` to the field.
 
-**Line 32 (User)** - change this to your preferred username. Keep it simple and remember it as we will have to enter it exactly while creating the user database.  
+- **Line 32 (User)** - change this to your preferred username. Keep it simple and remember it as we will have to enter it exactly while creating the user database.  
 
-**Line 48 (session domain)** - Change this to your root domain name.
+- **Line 48 (session domain)** - Change this to your root domain name.
 
-Example: if your subdomain is `rkcloud.mywire.org`, add `rkcloud.mywire.org` to the field.
+  Example: if your subdomain is `rkcloud.mywire.org`, add `rkcloud.mywire.org` to the field.
 
 - In the VM, we are now in /authelia/config, Create a new config file called configuration.yml.
 
@@ -509,7 +443,7 @@ nano configuration.yml
 
 - Paste the modified config into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
 
-## c. Create users database file
+### c. Create users database file
 
 - Paste this into notepad or any text editor on your computer. Don’t paste it in the VM as you will have to make some changes according to your username.
 
@@ -533,13 +467,19 @@ users:
       - dev
 ```
 
-**Line 9 (john)** - Change it to the username entered in the config file.
+- **Line 9 (john)** - Change it to the username entered in the config file.
 
-**Line 10 (display name)** - Change it to the name of your choice.
+- **Line 10 (display name)** - Change it to the name of your choice.
 
-**Line 13 (password)** - Generate a password hash by using the command `docker run authelia/authelia:latest authelia crypto hash generate --password 'YOURPASS'`  in the VM terminal. Change YOURPASS to your desired password  and copy the generated hash to this field in between the double quotes.
+- **Line 13 (password)** - Generate a password hash by using the command:
 
-**Line 14 (email)** - Change it to your email
+```bash
+docker run authelia/authelia:latest authelia crypto hash generate --password 'YOURPASS'
+```
+
+in the VM terminal. Change YOURPASS to your desired password  and copy the generated hash to this field in between the double quotes.
+
+- **Line 14 (email)** - Change it to your email
 
 - Now we have to create the users_database.yml file. We should still be inside the /authelia/config directory.
 
@@ -549,7 +489,7 @@ nano users_database.yml
 
 - Paste the following into users_database.yml and make sure to edit your name and email. Change ‘john’ to the username you used in the config file.
 
-## d. Create the authelia container
+### d. Create the authelia container
 
 - Within the ~/authelia directory, you can now run the docker-compose install.
 
@@ -558,26 +498,24 @@ cd ~/authelia
 docker compose up -d
 ```
 
-# 7. Set up authelia on nginx
+## 7. Set up authelia on nginx
 
 Now that we have started authelia, we need to create its domain name on nginx so we can access it from the browser.
 
 - In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
 - Add a new proxy host. Under domain names, add auth. followed by your subdomain.
 
-    Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `auth.rkcloud.mywire.org`.
+  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `auth.rkcloud.mywire.org`.
 
 - Leave the scheme as http.
 - type `authelia` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
 - Use `9091` as the Forward Port.
 - Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2023.png)
+![Authelia 1](./imgs/img18.png)
 
 - In the SSL tab, select the certificate you created to enable HTTPS support.
 - Enable all the other options.
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2022.png)
 
 - In the advanced tab, paste the following code. This allows authelia to recieve information about the user like IP, etc. It also enables Authelia to act as an authenticator.
 
@@ -622,9 +560,9 @@ Do not edit anything that is not mentioned below unless you know exactly what yo
 
 - Visit the domain for authelia, and test your username and password.
 
-# 8. Install code-server
+## 8. Install code-server
 
-## a. Docker Compose
+### a. Docker Compose for code-server
 
 - Navigate to the home directory on the server and create a folder called code-server
 
@@ -684,7 +622,8 @@ services:
 ```
 
 - Make sure to change the proxy domain to your subdomain.
-Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
+  
+  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `code.rkcloud.mywire.org`.
 - Paste this into the nano window by pressing CTRL+SHIFT+V. Save it by pressing CTRL+O and then enter. Exit nano by pressing CTRL+X.
 - Within the ~/code-server directory, you can now run the docker-compose install.
 
@@ -693,7 +632,7 @@ cd ~/code-server
 docker compose up -d
 ```
 
-## b. Create domain on nginx
+### b. Create domain on nginx
 
 - In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
 - Add a new proxy host. Under domain names, add code. followed by your subdomain.
@@ -705,12 +644,10 @@ docker compose up -d
 - Use `8443` as the Forward Port.
 - Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
 
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2024.png)
+![code-server 1](./imgs/img19.png)
 
 - In the SSL tab, select the certificate you created to enable HTTPS support.
 - Enable all the other options.
-
-![Untitled](Workshop%205f6488780f41413c8e8ca534cbd70224/Untitled%2022.png)
 
 - Paste the following code in a notepad or a text editor. You will have to make some changes so be careful.
 
@@ -796,6 +733,8 @@ real_ip_recursive on;
 }
 ```
 
-**Line 45 (error page)** - Change this to the auth subdomain.
+- **Line 45 (error page)** - Change this to the auth subdomain.
 
 Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
+
+**Voila! 🎉🎉**
