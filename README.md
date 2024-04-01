@@ -772,7 +772,6 @@ Do not edit anything that is not mentioned below unless you know exactly what yo
 
 - Visit the domain for authelia, and test your username and password.
 
-
 ## 9. Final Steps
 
 - Paste the following code in a notepad or a text editor. You will have to make some changes so be careful.
@@ -864,7 +863,6 @@ real_ip_recursive on;
 Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
 
 - Go to the proxy hosts settings for code-server, go to the advanced settings and paste the above code.
-
 
 Voila! 🎉🎉
 
