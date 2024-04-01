@@ -1,29 +1,30 @@
-# Workshop
+# Cloud Hosting Workshop
 
 ![poster](./imgs/poster.jpg)
 
-- [Workshop](#workshop)
-  - [1. Set up your VM on GCP](#1-set-up-your-vm-on-gcp)
-    - [a. Enable the free tier](#a-enable-the-free-tier)
-    - [b. Create a free VM instance](#b-create-a-free-vm-instance)
-  - [2. Install Docker on the VM](#2-install-docker-on-the-vm)
-  - [3. Install nginx](#3-install-nginx)
-    - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
-    - [b. Allow port 81 through the firewall](#b-allow-port-81-through-the-firewall)
-    - [c. Set up nginx](#c-set-up-nginx)
-  - [4. Obtain a custom domain](#4-obtain-a-custom-domain)
-  - [5. Set up certificates and domains on nginx](#5-set-up-certificates-and-domains-on-nginx)
-    - [a. Obtain a certificate](#a-obtain-a-certificate)
-    - [b. Create a domain and link it to the admin panel](#b-create-a-domain-and-link-it-to-the-admin-panel)
-  - [6. Install authelia](#6-install-authelia)
-    - [a. Docker Compose](#a-docker-compose)
-    - [b. Create the config file](#b-create-the-config-file)
-    - [c. Create users database file](#c-create-users-database-file)
-    - [d. Create the authelia container](#d-create-the-authelia-container)
-  - [7. Set up authelia on nginx](#7-set-up-authelia-on-nginx)
-  - [8. Install code-server](#8-install-code-server)
-    - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
-    - [b. Create domain on nginx](#b-create-domain-on-nginx)
+## Table of Contents
+
+- [1. Set up your VM on GCP](#1-set-up-your-vm-on-gcp)
+  - [a. Enable the free tier](#a-enable-the-free-tier)
+  - [b. Create a free VM instance](#b-create-a-free-vm-instance)
+- [2. Install Docker on the VM](#2-install-docker-on-the-vm)
+- [3. Install nginx](#3-install-nginx)
+  - [a. Use docker compose to spin up the container](#a-use-docker-compose-to-spin-up-the-container)
+  - [b. Allow port 81 through the firewall](#b-allow-port-81-through-the-firewall)
+  - [c. Set up nginx](#c-set-up-nginx)
+- [4. Obtain a custom domain](#4-obtain-a-custom-domain)
+- [5. Set up certificates and domains on nginx](#5-set-up-certificates-and-domains-on-nginx)
+  - [a. Obtain a certificate](#a-obtain-a-certificate)
+  - [b. Create a domain and link it to the admin panel](#b-create-a-domain-and-link-it-to-the-admin-panel)
+- [6. Install authelia](#6-install-authelia)
+  - [a. Docker Compose](#a-docker-compose)
+  - [b. Create the config file](#b-create-the-config-file)
+  - [c. Create users database file](#c-create-users-database-file)
+  - [d. Create the authelia container](#d-create-the-authelia-container)
+- [7. Set up authelia on nginx](#7-set-up-authelia-on-nginx)
+- [8. Install code-server](#8-install-code-server)
+  - [a. Docker Compose for code-server](#a-docker-compose-for-code-server)
+  - [b. Create domain on nginx](#b-create-domain-on-nginx)
 
 ## 1. Set up your VM on GCP
 
