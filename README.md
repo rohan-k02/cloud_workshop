@@ -1,3 +1,15 @@
+- [Workshop](#workshop)
+- [Introduction](#introduction)
+- [Where did I begin?](#where-did-i-begin)
+- [What you’ll learn](#what-youll-learn)
+- [Actual Steps](#actual-steps)
+  - [1. Set up your VM on GCP](#1-set-up-your-vm-on-gcp)
+    - [a. Enable the free tier](#a-enable-the-free-tier)
+    - [b. Create a free VM instance](#b-create-a-free-vm-instance)
+  - [2. Install Docker on the VM](#2-install-docker-on-the-vm)
+  - [What is Docker?](#what-is-docker)
+
+
 # Workshop
 
 - Basic Introduction

@@ -9,7 +9,7 @@ users:
   john:
     displayname: "john doe"
     # SET password by generating hash with command
-    # docker run authelia/authelia:latest authelia hash-password YOURPASSWORD
+    #docker run authelia/authelia:latest authelia crypto hash generate --password 'YOURPASS'
     password: ""
     email: johndoe@gmail.com
     groups:

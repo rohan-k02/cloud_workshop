@@ -4,14 +4,14 @@
 
 host: 0.0.0.0
 port: 9091 # if you need this changed make sure it reflects also in the docker-compose.yml
-jwt_secret: A4gYb7QFpbfKaNWAX7P7FX5y # docker run authelia/authelia:latest authelia crypto rand --length 64 --charset alphanumeric
-default_redirection_url: https://auth.code-test.mywire.org
+jwt_secret: A4gYb7QFpbfKaNWAX7P7FX5y # CHANGE!! docker run authelia/authelia:latest authelia crypto rand --length 64 --charset alphanumeric
+default_redirection_url: https://auth.rkcloud.mywire.org #CHANGE!!
 
 authentication_backend:
   disable_reset_password: false
   file:
     path: /config/users_database.yml # Make sure this file exists
-    password:
+    password: 
       algorithm: argon2id
       iterations: 1
       salt_length: 16
@@ -23,13 +23,13 @@ access_control:
   rules:
     # Rules applied to everyone
     - domain:
-        - "https://auth.code-test.mywire.org"
+        - "https://auth.rkcloud.mywire.org" #CHANGE!!
       policy: bypass
     - domain: # Proxies only requiring username and password
-        - "https://code-test.mywire.org"
+        - "https://rkcloud.mywire.org" #CHANGE!!
       subject:
         - 'group:dev'
-        - 'user:john'
+        - 'user:john' #CHANGE!!
       policy: one_factor
 #      networks:
 #        - 192.168.1.0/24
@@ -45,7 +45,7 @@ session:
   secret: BEcQnvjxawGh4U9JgXBMXNVE
   expiration: 3600 # 1 hour
   inactivity: 7200 # 2 hours
-  domain: code-test.mywire.org # Needs to be your root domain
+  domain: rkcloud.mywire.org # CHANGE!! Needs to be your root domain
 
   redis:
     host: redis
