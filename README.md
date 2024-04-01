@@ -31,6 +31,8 @@
     - [b. Create the config file](#b-create-the-config-file)
     - [c. Create users database file](#c-create-users-database-file)
     - [d. Create the authelia container](#d-create-the-authelia-container)
+  - [8. Set up authelia on nginx](#8-set-up-authelia-on-nginx)
+  - [9. Final Steps](#9-final-steps)
   - [Resources](#resources)
     - [Reddit](#reddit)
     - [Youtube](#youtube)
@@ -706,7 +708,72 @@ cd ~/authelia
 docker compose up -d
 ```
 
+- Run the command `docker ps` on the terminal and check if authelia is running properly
 
+## 8. Set up authelia on nginx
+
+Now that we have started authelia, we need to create its domain name on nginx so we can access it from the browser.
+
+- In the nginx admin panel, go to the ‘Proxy Hosts’ Page.
+- Add a new proxy host. Under domain names, add auth. followed by your subdomain.
+
+  Example: if your subdomain is `rkcloud.mywire.org`, create the domain name as `auth.rkcloud.mywire.org`.
+
+- Leave the scheme as http.
+- type `authelia` under forward hostname. (we can directly use the hostname as the different containers will be under the same network and can be called by their container names instead of IPs.)
+- Use `9091` as the Forward Port.
+- Enable ‘Cache Assets’, ‘Block Common Exploits’ and ‘Websockets Support’.
+
+![Authelia 1](./imgs/img18.png)
+
+- In the SSL tab, select the certificate you created to enable HTTPS support.
+- Enable all the other options.
+
+- In the advanced tab, paste the following code. This allows authelia to recieve information about the user like IP, etc. It also enables Authelia to act as an authenticator.
+
+```perl
+location / {
+set $upstream_authelia http://authelia:9091; # This example assumes a Docker deployment 
+proxy_pass $upstream_authelia;
+client_body_buffer_size 128k;
+
+#Timeout if the real server is dead
+proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
+
+# Advanced Proxy Config
+send_timeout 5m;
+proxy_read_timeout 360;
+proxy_send_timeout 360;
+proxy_connect_timeout 360;
+
+# Basic Proxy Config
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Forwarded-Host $http_host;
+proxy_set_header X-Forwarded-Uri $request_uri;
+proxy_set_header X-Forwarded-Ssl on;
+proxy_redirect  http://  $scheme://;
+proxy_http_version 1.1;
+proxy_set_header Connection "";
+proxy_cache_bypass $cookie_session;
+proxy_no_cache $cookie_session;
+proxy_buffers 64 256k;
+
+# If behind a reverse proxy, forwards the correct IP, assumes you're using Cloudflare. Adjust IP for your Docker network.
+set_real_ip_from 172.18.0.0/16;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+}
+```
+
+Do not edit anything that is not mentioned below unless you know exactly what you are doing
+
+- Visit the domain for authelia, and test your username and password.
+
+
+## 9. Final Steps
 
 - Paste the following code in a notepad or a text editor. You will have to make some changes so be careful.
 
@@ -795,6 +862,9 @@ real_ip_recursive on;
 - **Line 45 (error page)** - Change this to the auth subdomain.
 
 Example: if your subdomain is `rkcloud.mywire.org`, add `https://auth.rkcloud.mywire.org` to the field.
+
+- Go to the proxy hosts settings for code-server, go to the advanced settings and paste the above code.
+
 
 Voila! 🎉🎉
 
